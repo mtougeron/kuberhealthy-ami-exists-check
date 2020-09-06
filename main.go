@@ -1,0 +1,89 @@
+// Licensed to Michael Tougeron <github@e.tougeron.com> under
+// one or more contributor license agreements. See the NOTICE
+// file distributed with this work for additional information
+// regarding copyright ownership.
+// Michael Tougeron <github@e.tougeron.com> licenses this file
+// to you under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+package main
+
+import (
+	"os"
+	"path/filepath"
+	"strconv"
+
+	"github.com/Comcast/kuberhealthy/v2/pkg/checks/external/checkclient"
+	"github.com/Comcast/kuberhealthy/v2/pkg/kubeClient"
+
+	log "github.com/sirupsen/logrus"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
+)
+
+var (
+	buildVersion string = ""
+	buildTime    string = ""
+
+	kubeConfigFile string = filepath.Join(os.Getenv("HOME"), ".kube", "config")
+	debugEnv       string = os.Getenv("DEBUG")
+)
+
+func init() {
+
+	// Enable Debug just in case
+	if len(debugEnv) != 0 {
+		debug, err := strconv.ParseBool(debugEnv)
+		if err != nil {
+			log.Fatalln("Failed to parse DEBUG Environment variable:", err.Error())
+		}
+		checkclient.Debug = debug
+		log.SetLevel(log.DebugLevel)
+	}
+
+	// APP Build information
+	log.Debugln("Application Version:", buildVersion)
+	log.Debugln("Application Build Time:", buildTime)
+}
+
+func main() {
+
+	client, err := kubeClient.Create(kubeConfigFile)
+	if err != nil {
+		log.Fatalln("Unable to create kubernetes client")
+		log.Debugln(err.Error())
+		os.Exit(1)
+	}
+
+	nodes, err := client.CoreV1().Nodes().List(metav1.ListOptions{})
+	if err != nil {
+		log.Errorln("Error getting nodes")
+		log.Debugln(err.Error())
+		err = checkclient.ReportFailure([]string{"Could not get nodes: " + err.Error()})
+		os.Exit(1)
+	}
+
+	log.Debugf("Found %d nodes", len(nodes.Items))
+	if len(nodes.Items) == 0 {
+		log.Errorf("There were no nodes found")
+		err = checkclient.ReportFailure([]string{"There were no nodes found"})
+		os.Exit(1)
+	}
+
+	err = checkclient.ReportSuccess()
+	log.Debugln("Reporting Success, all nodes have an existing AMI.")
+	if err != nil {
+		log.Errorln("Error reporting success to Kuberhealthy servers")
+		log.Debugln(err.Error())
+		os.Exit(1)
+	}
+}
