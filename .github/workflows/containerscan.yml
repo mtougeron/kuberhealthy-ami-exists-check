@@ -1,4 +1,4 @@
-name: Go
+name: ContainerScan
 
 on:
   push:
@@ -8,8 +8,8 @@ on:
 
 jobs:
 
-  build:
-    name: Build
+  ContainerScan:
+    name: ContainerScan
     runs-on: ubuntu-latest
     steps:
 
@@ -22,5 +22,10 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
-    - name: Build
-      run: go build -v .
+    - name: Build Image
+      run: |
+        docker build . --file Dockerfile --tag scan-image:${{ github.sha }} --build-arg VERSION=${{ github.sha }}
+
+    - uses: Azure/container-scan@v0
+      with:
+        image-name: scan-image:${{ github.sha }}
