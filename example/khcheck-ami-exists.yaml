@@ -1,0 +1,17 @@
+apiVersion: comcast.github.io/v1
+kind: KuberhealthyCheck
+metadata:
+  name: ami-exists
+spec:
+  runInterval: 30m
+  timeout: 1m
+  podSpec:
+    containers:
+    - name: main
+      image: ghcr.io/mtougeron/khcheck-ami-exists:latest
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: DEBUG
+          value: "1"
+        # - name: AWS_REGION
+        #   value: "us-east-1" # The region your cluster runs in
