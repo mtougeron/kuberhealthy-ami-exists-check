@@ -30,7 +30,6 @@ jobs:
 
     - name: Build Image
       run: |
-        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
         docker build . --file Dockerfile --tag $IMAGE_NAME:${{ github.sha }} --build-arg VERSION=${{ github.sha }}
 
     - uses: Azure/container-scan@v0
