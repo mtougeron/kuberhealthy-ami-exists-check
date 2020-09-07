@@ -65,7 +65,7 @@ func Test_listEC2InstanceAMIsSuccess(t *testing.T) {
 
 		assert := assert.New(t)
 
-		assert.EqualValues(c.result, instanceResult)
+		assert.Equal(c.result, instanceResult)
 	}
 }
 

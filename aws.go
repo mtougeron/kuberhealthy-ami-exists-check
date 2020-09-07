@@ -80,8 +80,6 @@ func (c *Client) listEC2Images(imageIDs []*string) chan AMIResult {
 	go func() {
 		defer close(listChan)
 
-		// awsEC2 := ec2.New(awsSession, &aws.Config{Region: aws.String(awsRegion)})
-
 		amiResult := AMIResult{}
 
 		images, err := c.DescribeImages(&ec2.DescribeImagesInput{
@@ -110,8 +108,6 @@ func (c *Client) listEC2InstanceAMIs(instanceIDs []*string) chan InstanceAMIsRes
 	go func() {
 		defer close(listChan)
 
-		// awsEC2 := ec2.New(awsSession, &aws.Config{Region: aws.String(awsRegion)})
-
 		InstanceAMIsResult := InstanceAMIsResult{}
 
 		foundAMIs := map[string]bool{}
@@ -135,7 +131,6 @@ func (c *Client) listEC2InstanceAMIs(instanceIDs []*string) chan InstanceAMIsRes
 			return
 		}
 
-		// InstanceResult.Instances = instances.Reservations
 		listChan <- InstanceAMIsResult
 		return
 	}()

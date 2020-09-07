@@ -33,7 +33,6 @@ func runCheck() {
 	instanceIDs := getNodeInstanceIDs()
 
 	awsEC2, _ := newEC2Client()
-	// awsEC2 := ec2.New(awsSession, &aws.Config{Region: aws.String(awsRegion)})
 
 	var instanceResult InstanceAMIsResult
 	select {
