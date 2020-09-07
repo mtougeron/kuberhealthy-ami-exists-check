@@ -22,8 +22,14 @@
 package main
 
 import (
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/client"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
+	log "github.com/sirupsen/logrus"
 )
 
 // AMIResult struct represents a query for AWS AMIs. Contains a list
@@ -39,19 +45,46 @@ type InstanceAMIsResult struct {
 	Err          error
 }
 
+// Client EC2 client interface
+type Client struct {
+	ec2iface.EC2API
+}
+
+func createAWSSession() *session.Session {
+	// Build an AWS session
+	log.Debugln("Building AWS session")
+	awsConfig := aws.NewConfig().WithCredentialsChainVerboseErrors(debug)
+	awsConfig.Region = aws.String(awsRegion)
+	minThrottleDelay, _ := time.ParseDuration("200ms")
+	maxThrottleDelay, _ := time.ParseDuration("30s")
+	awsConfig.Retryer = CustomRetryer{DefaultRetryer: client.DefaultRetryer{
+		NumMaxRetries:    5,
+		MinThrottleDelay: minThrottleDelay,
+		MaxThrottleDelay: maxThrottleDelay,
+	}}
+
+	return session.Must(session.NewSession(awsConfig))
+}
+
+// EC2Client initializes an EC2 client
+func newEC2Client() (*Client, error) {
+	svc := ec2.New(awsSession, &aws.Config{Region: aws.String(awsRegion)})
+	return &Client{svc}, nil
+}
+
 // listEC2Images gets the specific list of AMIs based on their IDs
-func listEC2Images(imageIDs []*string) chan AMIResult {
+func (c *Client) listEC2Images(imageIDs []*string) chan AMIResult {
 
 	listChan := make(chan AMIResult)
 
 	go func() {
 		defer close(listChan)
 
-		awsEC2 := ec2.New(awsSession, &aws.Config{Region: aws.String(awsRegion)})
+		// awsEC2 := ec2.New(awsSession, &aws.Config{Region: aws.String(awsRegion)})
 
 		amiResult := AMIResult{}
 
-		images, err := awsEC2.DescribeImages(&ec2.DescribeImagesInput{
+		images, err := c.DescribeImages(&ec2.DescribeImagesInput{
 			ImageIds: imageIDs,
 		})
 
@@ -70,20 +103,20 @@ func listEC2Images(imageIDs []*string) chan AMIResult {
 }
 
 // listEC2InstanceAMIs collects the AMI IDs used by the Instances
-func listEC2InstanceAMIs(instanceIDs []*string) chan InstanceAMIsResult {
+func (c *Client) listEC2InstanceAMIs(instanceIDs []*string) chan InstanceAMIsResult {
 
 	listChan := make(chan InstanceAMIsResult)
 
 	go func() {
 		defer close(listChan)
 
-		awsEC2 := ec2.New(awsSession, &aws.Config{Region: aws.String(awsRegion)})
+		// awsEC2 := ec2.New(awsSession, &aws.Config{Region: aws.String(awsRegion)})
 
 		InstanceAMIsResult := InstanceAMIsResult{}
 
 		foundAMIs := map[string]bool{}
 
-		err := awsEC2.DescribeInstancesPages(&ec2.DescribeInstancesInput{InstanceIds: instanceIDs},
+		err := c.DescribeInstancesPages(&ec2.DescribeInstancesInput{InstanceIds: instanceIDs},
 			func(page *ec2.DescribeInstancesOutput, lastPage bool) bool {
 				for _, reservation := range page.Reservations {
 					for _, instance := range reservation.Instances {
