@@ -8,7 +8,7 @@
 
 ## Scanning
 
-Security scanning uses [gosec](https://github.com/securego/gosec) via a [GitHub workflow](https://github.com/mtougeron/kuberhealthy-get-pods-check/actions?query=workflow%3AGosec)
+Security scanning uses [gosec](https://github.com/securego/gosec) via a [GitHub workflow](https://github.com/mtougeron/kuberhealthy-ami-exists-check/actions?query=workflow%3AGosec)
 
 ## Reporting a Vulnerability
 
