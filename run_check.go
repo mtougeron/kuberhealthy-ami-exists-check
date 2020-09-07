@@ -32,9 +32,11 @@ func runCheck() {
 
 	instanceIDs := getNodeInstanceIDs()
 
+	awsEC2, _ := newEC2Client()
+
 	var instanceResult InstanceAMIsResult
 	select {
-	case instanceResult = <-listEC2InstanceAMIs(instanceIDs):
+	case instanceResult = <-awsEC2.listEC2InstanceAMIs(instanceIDs):
 		// Handle errors from listing AMIs.
 		if instanceResult.Err != nil {
 			log.Errorln("failed to list Instance AMIs:", instanceResult.Err.Error())
@@ -52,7 +54,7 @@ func runCheck() {
 	// Get a list of AMIs from AWS.
 	var amiResult AMIResult
 	select {
-	case amiResult = <-listEC2Images(instanceResult.InstanceAMIs):
+	case amiResult = <-awsEC2.listEC2Images(instanceResult.InstanceAMIs):
 		// Handle errors from listing AMIs.
 		if amiResult.Err != nil {
 			log.Errorln("failed to list AMIs:", amiResult.Err.Error())

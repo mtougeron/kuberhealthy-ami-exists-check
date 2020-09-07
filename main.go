@@ -30,7 +30,6 @@ import (
 	"regexp"
 	"strconv"
 	"syscall"
-	"time"
 
 	"github.com/Comcast/kuberhealthy/v2/pkg/checks/external/checkclient"
 	"github.com/Comcast/kuberhealthy/v2/pkg/kubeClient"
@@ -39,7 +38,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/client"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -70,22 +68,6 @@ const (
 	// Default AWS region.
 	defaultAWSRegion = "us-east-1"
 )
-
-func createAWSSession() *session.Session {
-	// Build an AWS session
-	log.Debugln("Building AWS session")
-	awsConfig := aws.NewConfig().WithCredentialsChainVerboseErrors(debug)
-	awsConfig.Region = aws.String(awsRegion)
-	minThrottleDelay, _ := time.ParseDuration("200ms")
-	maxThrottleDelay, _ := time.ParseDuration("30s")
-	awsConfig.Retryer = CustomRetryer{DefaultRetryer: client.DefaultRetryer{
-		NumMaxRetries:    5,
-		MinThrottleDelay: minThrottleDelay,
-		MaxThrottleDelay: maxThrottleDelay,
-	}}
-
-	return session.Must(session.NewSession(awsConfig))
-}
 
 func init() {
 
