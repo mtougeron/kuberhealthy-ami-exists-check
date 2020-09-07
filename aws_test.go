@@ -16,9 +16,19 @@ type mockEC2Client struct {
 	result InstanceAMIsResult
 }
 
+type mockEC2ClientAMI struct {
+	ec2iface.EC2API
+	resp   ec2.DescribeImagesOutput
+	result AMIResult
+}
+
 func (m *mockEC2Client) DescribeInstancesPages(in *ec2.DescribeInstancesInput, fn func(*ec2.DescribeInstancesOutput, bool) bool) error {
 	fn(&m.resp, true)
 	return nil
+}
+
+func (m *mockEC2ClientAMI) DescribeImages(*ec2.DescribeImagesInput) (*ec2.DescribeImagesOutput, error) {
+	return &m.resp, nil
 }
 
 func Test_listEC2InstanceAMIsSuccess(t *testing.T) {
@@ -114,5 +124,84 @@ func Test_listEC2InstanceAMIsFail(t *testing.T) {
 		assert := assert.New(t)
 
 		assert.NotEqual(c.result, instanceResult)
+	}
+}
+
+func Test_listEC2ImagesSuccess(t *testing.T) {
+	results := AMIResult{}
+	var img ec2.Image
+	img.ImageId = aws.String("ami-123abc")
+	results.Images = append(results.Images, &img)
+	results.Err = nil
+	cases := []mockEC2ClientAMI{
+		{
+			resp: ec2.DescribeImagesOutput{
+				Images: []*ec2.Image{
+					{
+						ImageId: aws.String("ami-123abc"),
+					},
+				},
+			},
+			result: results,
+		},
+	}
+
+	var imageIDs []*string
+	imageIDs = append(imageIDs, aws.String("ami-123abc"))
+	for _, c := range cases {
+		e := Client{
+			&mockEC2ClientAMI{
+				resp:   c.resp,
+				result: c.result,
+			},
+		}
+
+		var imageResult AMIResult
+		imageResult = <-e.listEC2Images(imageIDs)
+
+		assert := assert.New(t)
+
+		assert.Equal(c.result, imageResult)
+	}
+}
+
+func Test_listEC2ImagesFail(t *testing.T) {
+	results := AMIResult{}
+	var img ec2.Image
+	img.ImageId = aws.String("ami-123abc")
+	results.Images = append(results.Images, &img)
+	results.Err = nil
+	cases := []mockEC2ClientAMI{
+		{
+			resp: ec2.DescribeImagesOutput{
+				Images: []*ec2.Image{
+					{
+						ImageId: aws.String("ami-123abc"),
+					},
+					{
+						ImageId: aws.String("ami-456def"),
+					},
+				},
+			},
+			result: results,
+		},
+	}
+
+	var imageIDs []*string
+	imageIDs = append(imageIDs, aws.String("ami-123abc"))
+	for _, c := range cases {
+		e := Client{
+			&mockEC2ClientAMI{
+				resp:   c.resp,
+				result: c.result,
+			},
+		}
+
+		var imageResult AMIResult
+		imageResult = <-e.listEC2Images(imageIDs)
+
+		assert := assert.New(t)
+
+		assert.NotEqual(c.result, imageResult)
 	}
 }
