@@ -32,10 +32,12 @@ WORKDIR /app
 # Copy binary from build to main folder
 RUN cp /build/${APP_NAME} .
 
+RUN addgroup -S kuberhealthy && adduser -S kuberhealthy -G kuberhealthy
+
 # Build a small image
 FROM scratch
-
-# ENSURE THAT WE SMART AS HELL. 
+COPY --from=builder /etc/passwd /etc/passwd
+USER kuberhealthy
 # https://github.com/aws/aws-sdk-go/issues/2322
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /app/${APP_NAME} /
