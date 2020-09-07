@@ -1,7 +1,7 @@
 name: Gosec
 on: [push, pull_request]
 jobs:
-  tests:
+  gosec:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
