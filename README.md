@@ -21,31 +21,37 @@ metadata:
 spec:
   runInterval: 30m
   timeout: 1m
+  extraAnnotations:
+    iam.amazonaws.com/role: <role-arn> # Replace this value with your ARN
+    iam.amazonaws.com/external-id: <role-external-id> # Use this if kube2iam is using external-id for roles
   podSpec:
+    serviceAccountName: khcheck-ami-exists
     containers:
     - name: main
-      image: ghcr.io/mtougeron/khcheck-ami-exists:latest
+      image: ghcr.io/mtougeron/khcheck-ami-exists:latest # Change to a specific version
       imagePullPolicy: IfNotPresent
       env:
         - name: DEBUG
           value: "1"
-        # - name: AWS_REGION
-        #   value: "us-east-1"
+        - name: AWS_REGION
+          value: "<region name>" # The region your cluster runs in
 ```
-where `AWS_REGION` is the region your cluster runs in.
 
 ### Installation
 
->Make sure you are using the latest release of Kuberhealthy 2.2.0.
+> Make sure you are using the latest release of Kuberhealthy 2.x
 
-Run `kubectl apply` against [example spec file](example/khcheck-ami-exists.yaml)
+Create the AWS Role that will be assumed so that the check has access to `ec2:DescribeInstances` & `ec2:DescribeImages` using the [example role policy](example/aws-role.json).
+
+Run `kubectl apply` against [example spec file](example/khcheck-ami-exists.yaml). NOTE: This also installs the `ClusterRole` and `RoleBinding` to allow the check to get the list of `Nodes` running in the cluster.
 
 ```bash
 kubectl apply -f khcheck-ami-exists.yaml -n kuberhealthy
 ```
+
 #### Container Image
 
-Image is available [Github Container Registry](https://github.com/users/mtougeron/packages/container/khcheck-ami-exists/)
+Images are available on the [GitHub Container Registry](https://github.com/users/mtougeron/packages/container/khcheck-ami-exists/versions)
 
 ### Licensing
 

@@ -2,9 +2,9 @@
 
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-|   all   | :white_check_mark: |
+| Version | Supported          | gosec  |
+| ------- | ------------------ | ------ |
+| latest  | :white_check_mark: | ![Gosec](https://github.com/mtougeron/kuberhealthy-ami-exists-check/workflows/Gosec/badge.svg) |
 
 ## Scanning
 

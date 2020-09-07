@@ -5,13 +5,50 @@ metadata:
 spec:
   runInterval: 30m
   timeout: 1m
+  extraAnnotations:
+    iam.amazonaws.com/role: <role-arn> # Replace this value with your ARN
+    iam.amazonaws.com/external-id: <role-external-id> # Use this if kube2iam is using external-id for roles
   podSpec:
+    serviceAccountName: khcheck-ami-exists
     containers:
     - name: main
-      image: ghcr.io/mtougeron/khcheck-ami-exists:latest
+      image: ghcr.io/mtougeron/khcheck-ami-exists:latest # Change to a specific version
       imagePullPolicy: IfNotPresent
       env:
         - name: DEBUG
           value: "1"
-        # - name: AWS_REGION
-        #   value: "us-east-1" # The region your cluster runs in
+        - name: AWS_REGION
+          value: "<region name>" # The region your cluster runs in
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: khcheck-ami-exists
+  namespace: kuberhealthy
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: khcheck-ami-exists
+subjects:
+  - kind: ServiceAccount
+    name: khcheck-ami-exists
+    namespace: kuberhealthy
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: khcheck-ami-exists
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: khcheck-ami-exists
+  namespace: kuberhealthy
