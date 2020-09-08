@@ -55,12 +55,14 @@ func createAWSSession() *session.Session {
 	log.Debugln("Building AWS session")
 	awsConfig := aws.NewConfig().WithCredentialsChainVerboseErrors(debug)
 	awsConfig.Region = aws.String(awsRegion)
-	minThrottleDelay, _ := time.ParseDuration("200ms")
-	maxThrottleDelay, _ := time.ParseDuration("30s")
+	minDelay, _ := time.ParseDuration("1s")
+	maxDelay, _ := time.ParseDuration("10s")
 	awsConfig.Retryer = CustomRetryer{DefaultRetryer: client.DefaultRetryer{
 		NumMaxRetries:    5,
-		MinThrottleDelay: minThrottleDelay,
-		MaxThrottleDelay: maxThrottleDelay,
+		MinRetryDelay:    minDelay,
+		MaxRetryDelay:    maxDelay,
+		MinThrottleDelay: minDelay,
+		MaxThrottleDelay: maxDelay,
 	}}
 
 	return session.Must(session.NewSession(awsConfig))
@@ -68,7 +70,7 @@ func createAWSSession() *session.Session {
 
 // EC2Client initializes an EC2 client
 func newEC2Client() (*Client, error) {
-	svc := ec2.New(awsSession, &aws.Config{Region: aws.String(awsRegion)})
+	svc := ec2.New(awsSession)
 	return &Client{svc}, nil
 }
 
