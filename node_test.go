@@ -24,7 +24,6 @@ package main
 import (
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
@@ -32,23 +31,23 @@ func Test_parseInstanceID(t *testing.T) {
 	tests := []struct {
 		name       string
 		providerID string
-		want       *string
+		want       string
 	}{
 		{
 			name:       "full providerID",
 			providerID: "aws:///us-east-1d/i-089747b9fac6ab469",
-			want:       aws.String("i-089747b9fac6ab469"),
+			want:       "i-089747b9fac6ab469",
 		},
 		{
 			name:       "partial providerID",
 			providerID: "i-abc123",
-			want:       aws.String("i-abc123"),
+			want:       "i-abc123",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := parseInstanceID(tt.providerID); *got != *tt.want {
-				t.Errorf("parseInstanceID() = %v, want %v", *got, *tt.want)
+			if got := parseInstanceID(tt.providerID); got != tt.want {
+				t.Errorf("parseInstanceID() = %v, want %v", got, tt.want)
 			}
 		})
 	}

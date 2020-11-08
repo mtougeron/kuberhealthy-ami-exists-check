@@ -25,19 +25,17 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
-func parseInstanceID(providerID string) *string {
+func parseInstanceID(providerID string) string {
 	parts := strings.Split(providerID, "/")
-	return aws.String(parts[len(parts)-1])
+	return parts[len(parts)-1]
 }
 
-func getNodeInstanceIDs() []*string {
+func getNodeInstanceIDs() []string {
 	nodes, err := k8sClient.CoreV1().Nodes().List(metav1.ListOptions{})
 	if err != nil {
 		log.Errorln("Error getting nodes")
@@ -53,7 +51,7 @@ func getNodeInstanceIDs() []*string {
 		os.Exit(1)
 	}
 
-	var instanceIDs []*string
+	var instanceIDs []string
 	for _, node := range nodes.Items {
 		instanceIDs = append(instanceIDs, parseInstanceID(node.Spec.ProviderID))
 	}

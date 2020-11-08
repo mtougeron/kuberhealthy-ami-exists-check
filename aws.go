@@ -32,8 +32,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// AMIResult struct represents a query for AWS AMIs. Contains a list
-// of AMIs and an error.
+// AMIResult struct represents a query for AWS AMIs.
+// Contains a list of AMIs and an error.
 type AMIResult struct {
 	Images []*ec2.Image
 	Err    error
@@ -41,7 +41,7 @@ type AMIResult struct {
 
 // InstanceAMIsResult is a list of the AMI IDs
 type InstanceAMIsResult struct {
-	InstanceAMIs []*string
+	InstanceAMIs []string
 	Err          error
 }
 
@@ -75,7 +75,7 @@ func newEC2Client() (*Client, error) {
 }
 
 // listEC2Images gets the specific list of AMIs based on their IDs
-func (c *Client) listEC2Images(imageIDs []*string) chan AMIResult {
+func (c *Client) listEC2Images(imageIDs []string) chan AMIResult {
 
 	listChan := make(chan AMIResult)
 
@@ -85,7 +85,7 @@ func (c *Client) listEC2Images(imageIDs []*string) chan AMIResult {
 		amiResult := AMIResult{}
 
 		images, err := c.DescribeImages(&ec2.DescribeImagesInput{
-			ImageIds: imageIDs,
+			ImageIds: aws.StringSlice(imageIDs),
 		})
 
 		if err != nil {
@@ -103,7 +103,7 @@ func (c *Client) listEC2Images(imageIDs []*string) chan AMIResult {
 }
 
 // listEC2InstanceAMIs collects the AMI IDs used by the Instances
-func (c *Client) listEC2InstanceAMIs(instanceIDs []*string) chan InstanceAMIsResult {
+func (c *Client) listEC2InstanceAMIs(instanceIDs []string) chan InstanceAMIsResult {
 
 	listChan := make(chan InstanceAMIsResult)
 
@@ -114,13 +114,13 @@ func (c *Client) listEC2InstanceAMIs(instanceIDs []*string) chan InstanceAMIsRes
 
 		foundAMIs := map[string]bool{}
 
-		err := c.DescribeInstancesPages(&ec2.DescribeInstancesInput{InstanceIds: instanceIDs},
+		err := c.DescribeInstancesPages(&ec2.DescribeInstancesInput{InstanceIds: aws.StringSlice(instanceIDs)},
 			func(page *ec2.DescribeInstancesOutput, lastPage bool) bool {
 				for _, reservation := range page.Reservations {
 					for _, instance := range reservation.Instances {
-						if !foundAMIs[*instance.ImageId] {
-							InstanceAMIsResult.InstanceAMIs = append(InstanceAMIsResult.InstanceAMIs, instance.ImageId)
-							foundAMIs[*instance.ImageId] = true
+						if _, ok := foundAMIs[aws.StringValue(instance.ImageId)]; !ok {
+							InstanceAMIsResult.InstanceAMIs = append(InstanceAMIsResult.InstanceAMIs, aws.StringValue(instance.ImageId))
+							foundAMIs[aws.StringValue(instance.ImageId)] = true
 						}
 					}
 				}

@@ -33,7 +33,7 @@ func (m *mockEC2ClientAMI) DescribeImages(*ec2.DescribeImagesInput) (*ec2.Descri
 
 func Test_listEC2InstanceAMIsSuccess(t *testing.T) {
 	results := InstanceAMIsResult{}
-	results.InstanceAMIs = append(results.InstanceAMIs, aws.String("ami-123abc"))
+	results.InstanceAMIs = append(results.InstanceAMIs, "ami-123abc")
 	results.Err = nil
 	cases := []mockEC2Client{
 		{
@@ -58,10 +58,8 @@ func Test_listEC2InstanceAMIsSuccess(t *testing.T) {
 		},
 	}
 
-	var instanceIDs []*string
-	instanceIDs = append(instanceIDs, aws.String("i-abc123"))
-	instanceIDs = append(instanceIDs, aws.String("i-abc456"))
-	instanceIDs = append(instanceIDs, aws.String("i-abc789"))
+	var instanceIDs []string
+	instanceIDs = append(instanceIDs, "i-abc123", "i-abc456", "i-abc789")
 	for _, c := range cases {
 		e := Client{
 			&mockEC2Client{
@@ -81,7 +79,7 @@ func Test_listEC2InstanceAMIsSuccess(t *testing.T) {
 
 func Test_listEC2InstanceAMIsFail(t *testing.T) {
 	results := InstanceAMIsResult{}
-	results.InstanceAMIs = append(results.InstanceAMIs, aws.String("ami-123abc"))
+	results.InstanceAMIs = append(results.InstanceAMIs, "ami-123abc")
 	results.Err = nil
 	cases := []mockEC2Client{
 		{
@@ -106,10 +104,8 @@ func Test_listEC2InstanceAMIsFail(t *testing.T) {
 		},
 	}
 
-	var instanceIDs []*string
-	instanceIDs = append(instanceIDs, aws.String("i-abc123"))
-	instanceIDs = append(instanceIDs, aws.String("i-abc456"))
-	instanceIDs = append(instanceIDs, aws.String("i-abc789"))
+	var instanceIDs []string
+	instanceIDs = append(instanceIDs, "i-abc123", "i-abc456", "i-abc789")
 	for _, c := range cases {
 		e := Client{
 			&mockEC2Client{
@@ -146,8 +142,8 @@ func Test_listEC2ImagesSuccess(t *testing.T) {
 		},
 	}
 
-	var imageIDs []*string
-	imageIDs = append(imageIDs, aws.String("ami-123abc"))
+	var imageIDs []string
+	imageIDs = append(imageIDs, "ami-123abc")
 	for _, c := range cases {
 		e := Client{
 			&mockEC2ClientAMI{
@@ -187,8 +183,8 @@ func Test_listEC2ImagesFail(t *testing.T) {
 		},
 	}
 
-	var imageIDs []*string
-	imageIDs = append(imageIDs, aws.String("ami-123abc"))
+	var imageIDs []string
+	imageIDs = append(imageIDs, "ami-123abc")
 	for _, c := range cases {
 		e := Client{
 			&mockEC2ClientAMI{
