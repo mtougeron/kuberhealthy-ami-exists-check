@@ -45,6 +45,10 @@ type InstanceAMIsResult struct {
 	Err          error
 }
 
+type CustomRetryer struct {
+	client.DefaultRetryer
+}
+
 // Client EC2 client interface
 type Client struct {
 	ec2iface.EC2API

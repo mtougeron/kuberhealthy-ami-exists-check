@@ -38,8 +38,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
-	"github.com/aws/aws-sdk-go/aws/client"
-	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 )
 
@@ -187,23 +185,4 @@ func reportToKuberhealthy(ok bool, errs []string) {
 		log.Fatalln("error reporting to kuberhealthy:", err.Error())
 	}
 	return
-}
-
-// CustomRetryer wraps the SDK's built in DefaultRetryer adding additional
-// custom features. Such as, no retry for 5xx status codes.
-type CustomRetryer struct {
-	client.DefaultRetryer
-}
-
-// ShouldRetry overrides the SDK's built in DefaultRetryer adding customization
-// to not retry 5xx status codes.
-func (r CustomRetryer) ShouldRetry(req *request.Request) bool {
-	if req.HTTPResponse.StatusCode >= 500 {
-		// Don't retry any 5xx status codes.
-		return false
-	}
-	log.Debugln("Retrying AWS API call")
-
-	// Fallback to SDK's built in retry rules
-	return r.DefaultRetryer.ShouldRetry(req)
 }
