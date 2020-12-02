@@ -3,20 +3,20 @@ FROM golang:1.15-alpine AS builder
 ARG VERSION=0.0.1
 ENV APP_NAME=khcheck-ami-exists
 ENV APP_VERSION=$VERSION
+ARG TARGETARCH
 
-# GO goods
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
     GOOS=linux \
-    GOARCH=amd64
+    GOARCH=$TARGETARCH
 
 # Move to working directory /build
-WORKDIR /build 
+WORKDIR /build
 
 # Copy and download dependency using go mod
-COPY go.mod .
-COPY go.sum .
+COPY go.mod go.sum ./
 RUN go mod download
+
 
 # Copy the code into the container
 COPY . .
