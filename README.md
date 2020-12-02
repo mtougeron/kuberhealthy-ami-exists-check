@@ -1,7 +1,7 @@
 # kuberhealthy-ami-exists-check
 A Kuberhealthy check to make sure the AWS AMIs in use still exist.
 
-![Go](https://github.com/mtougeron/kuberhealthy-ami-exists-check/workflows/Go/badge.svg) ![Gosec](https://github.com/mtougeron/kuberhealthy-ami-exists-check/workflows/Gosec/badge.svg) [![GitHub tag](https://img.shields.io/github/tag/mtougeron/kuberhealthy-ami-exists-check.svg)](https://github.com/mtougeron/kuberhealthy-ami-exists-check/tags/)
+![Go](https://github.com/mtougeron/kuberhealthy-ami-exists-check/workflows/Go/badge.svg) ![Gosec](https://github.com/mtougeron/kuberhealthy-ami-exists-check/workflows/Gosec/badge.svg) ![ContainerScan](https://github.com/mtougeron/kuberhealthy-get-pods-check/workflows/ContainerScan/badge.svg) [![GitHub tag](https://img.shields.io/github/tag/mtougeron/kuberhealthy-ami-exists-check.svg)](https://github.com/mtougeron/kuberhealthy-ami-exists-check/tags/)
 
 The `Kuberhealthy Get AMI Check` gathers the list Nodes, finds the AWS Instances, creates a unique list of AMI IDs, and verifies that the AMI(s) still exist.
 
