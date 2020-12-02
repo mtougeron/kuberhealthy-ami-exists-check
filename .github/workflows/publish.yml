@@ -7,9 +7,6 @@ on:
     - v*
   pull_request:
 
-env:
-  IMAGE_NAME: khcheck-ami-exists
-
 jobs:
   test:
     runs-on: ubuntu-latest
