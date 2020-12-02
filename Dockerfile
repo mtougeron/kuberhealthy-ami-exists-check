@@ -17,7 +17,6 @@ WORKDIR /build
 COPY go.mod go.sum ./
 RUN go mod download
 
-
 # Copy the code into the container
 COPY . .
 

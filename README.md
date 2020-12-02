@@ -51,7 +51,7 @@ kubectl apply -f khcheck-ami-exists.yaml -n kuberhealthy
 
 #### Container Image
 
-Images are available on the [GitHub Container Registry](https://github.com/users/mtougeron/packages/container/khcheck-ami-exists/versions)
+Images are available on the [GitHub Container Registry](https://github.com/users/mtougeron/packages/container/khcheck-ami-exists/versions) and [DockerHub](https://hub.docker.com/repository/docker/mtougeron/khcheck-ami-exists)
 
 ### Licensing
 
