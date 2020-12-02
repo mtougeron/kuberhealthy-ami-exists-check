@@ -42,7 +42,7 @@ jobs:
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v1
         with:
-          images: ${{ secrets.DOCKER_HUB_USERNAME }}/$IMAGE_NAME,ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          images: ${{ secrets.DOCKER_HUB_USERNAME }}/khcheck-ami-exists,ghcr.io/${{ github.repository_owner }}/khcheck-ami-exists
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
