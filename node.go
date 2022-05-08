@@ -22,6 +22,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"strings"
 
@@ -36,7 +37,7 @@ func parseInstanceID(providerID string) string {
 }
 
 func getNodeInstanceIDs() []string {
-	nodes, err := k8sClient.CoreV1().Nodes().List(metav1.ListOptions{})
+	nodes, err := k8sClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		log.Errorln("Error getting nodes")
 		log.Debugln(err.Error())
